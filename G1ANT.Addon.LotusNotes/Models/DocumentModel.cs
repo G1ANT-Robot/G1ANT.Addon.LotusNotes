@@ -8,21 +8,22 @@
 *
 */
 using Domino;
+using G1ANT.Addon.LotusNotes.Services;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace G1ANT.Addon.LotusNotes.Services
+namespace G1ANT.Addon.LotusNotes.Models
 {
     public class DocumentModel
     {
-        private readonly NotesDocument document;
+        public readonly NotesDocument document;
 
-        public dynamic Authors { get; }
+        public string[] Authors { get; }
         //public dynamic ColumnValues { get; }
-        public dynamic Created { get; }
+        public DateTime Created { get; }
         public NotesEmbeddedObject[] EmbeddedObjects { get; }
         //public dynamic EncryptionKeys { get; set; }
         //public bool EncryptOnSend { get; set; }
@@ -57,12 +58,15 @@ namespace G1ANT.Addon.LotusNotes.Services
         //public string Verifier { get; }
         //public dynamic LockHolders { get; }
         public bool IsEncrypted { get; }
+        public string Subject { get; }
+        public string From { get; }
+        public string[] To { get; }
 
         public DocumentModel(NotesDocument document)
         {
             this.document = document;
 
-            Authors = document.Authors;
+            Authors = ((IEnumerable)document.Authors).Cast<string>().ToArray();
             Created = document.Created;
             EmbeddedObjects = document.EmbeddedObjects;
             HasEmbedded = document.HasEmbedded;
@@ -90,10 +94,15 @@ namespace G1ANT.Addon.LotusNotes.Services
             Size = document.Size;
             UniversalID = document.UniversalID;
             IsEncrypted = document.IsEncrypted;
+
+
+            Subject = document.GetItemValue(ItemFieldNames.Subject)[0];
+            From = document.GetItemValue(ItemFieldNames.From).ToString();
+            To = ((IEnumerable)document.GetItemValue(ItemFieldNames.SendTo)).Cast<string>().ToArray();
         }
 
 
-        public IReadOnlyCollection<AttachmentModel> GetAttachments()
+    public IReadOnlyCollection<AttachmentModel> GetAttachments()
         {
             if (document.HasEmbedded && document.HasItem("$File"))
             {
@@ -108,6 +117,7 @@ namespace G1ANT.Addon.LotusNotes.Services
         }
 
 
+
         public void Save(bool force = true, bool makeResponse = false, bool markRead = false) => document.Save(force, makeResponse, markRead);
 
         public void Remove(bool force = true) => document.Remove(force);
@@ -118,52 +128,6 @@ namespace G1ANT.Addon.LotusNotes.Services
 
         public void MakeResponse(DocumentModel model) => document.MakeResponse(model.document);
 
-    }
-
-
-
-
-    public class AttachmentModel
-    {
-        private readonly NotesEmbeddedObject embeddedObject;
-
-        public string FileName { get; }
-        public string Class { get; }
-        public int FileSize { get; }
-        //bool FitBelowFields { get; set; }
-        //bool FitToWindow { get; set; }
-        public string Name { get; }
-        public dynamic Object { get; }
-        //NotesRichTextItem Parent { get; }
-        //bool RunReadOnly { get; set; }
-        public string Source { get; }
-        public EMBED_TYPE EmbedType { get; }
-        public object[] Verbs { get; }
-
-
-        public static bool IsAttachmentItem(NotesItem item) => item.type == IT_TYPE.ATTACHMENT;
-
-        public AttachmentModel(NotesDocument document, NotesItem item)
-        {
-            if (!IsAttachmentItem(item))
-                throw new ArgumentException("Item is not an attachment", nameof(item));
-            
-            FileName = ((IEnumerable)item.Values).Cast<string>().First();
-            embeddedObject = document.GetAttachment(FileName);
-
-            Class = embeddedObject.Class;
-            FileSize = embeddedObject.FileSize;
-            Name = embeddedObject.Name;
-            Object = embeddedObject.Object;
-            Source = embeddedObject.Source;
-            EmbedType = embeddedObject.type;
-            Verbs = embeddedObject.Verbs;
-        }
-
-        public object Activate(bool show) => embeddedObject.Activate(show);
-        public void DoVerb(string verb) => embeddedObject.DoVerb(verb);
-        public void ExtractFile(string path) => embeddedObject.ExtractFile(path);
-        public void Remove() => embeddedObject.Remove();
     }
 }
 

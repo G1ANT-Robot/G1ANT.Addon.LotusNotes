@@ -8,32 +8,40 @@
 *
 */
 using Domino;
+using G1ANT.Addon.LotusNotes.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace G1ANT.Addon.LotusNotes.Services
 {
-    internal static class ItemFieldNames
+    public class LotusNotesWrapper : IDisposable
     {
-        public const string Form = "Form";
-        public const string SendTo = "SendTo";
-        public const string CopyTo = "CopyTo";
-        public const string Subject = "Subject";
-        public const string Body = "Body";
-    }
-
-    public class LotusNotesWrapper
-    {
-        private NotesSession lotusNotesServerSession;
+        private NotesSession session;
         private NotesDatabase serverDatabase;
 
         public int Id { get; set; }
+
+        /// <summary>
+        /// Set to false to avoid background conversion of email body to rich text and enable Mime Entity operations.
+        /// Remember to set to true after finishing processing of the email.
+        /// </summary>
+        public bool ConvertEmailToRichText { get => session.ConvertMime; set => session.ConvertMime = value; }
 
         public LotusNotesWrapper(int id)
         {
             Id = id;
         }
+
+        public void Close()
+        {
+            session = null;
+            serverDatabase = null;
+        }
+
+
+        public void Dispose() => Close();
 
         /// <summary>
         /// Connects to server using the last login used by the IBM Notes app. If you want to change
@@ -42,11 +50,14 @@ namespace G1ANT.Addon.LotusNotes.Services
         /// <param name="password"></param>
         /// <param name="server"></param>
         /// <param name="databaseFile"></param>
-        public void Connect(string password = "Rhenus.123", string server = "DE9899SL8/RETHMANN", string databaseFile = @"mail_de\zzm-de0849-robot-test-40453.nsf")
+        public void Connect(string password, string server, string databaseFile)
         {
-            lotusNotesServerSession = new NotesSession();
-            lotusNotesServerSession.Initialize(password);
-            serverDatabase = lotusNotesServerSession.GetDatabase(server, databaseFile, false);
+            session = new NotesSession();
+            session.Initialize(password);
+            serverDatabase = session.GetDatabase(server, databaseFile, false);
+            // note to myself: that won't work: serverDatabase = session.CurrentDatabase; - unimplemented exception
+
+
             if (!serverDatabase.IsOpen)
             {
                 serverDatabase.Open();
@@ -64,7 +75,7 @@ namespace G1ANT.Addon.LotusNotes.Services
             var notesDocument = serverDatabase.CreateDocument();
             notesDocument.SaveMessageOnSend = saveMessageOnSend;
 
-            notesDocument.ReplaceItemValue(ItemFieldNames.Form, "Memo");
+            //notesDocument.ReplaceItemValue(ItemFieldNames.Form, "Memo"); // ???
 
             notesDocument.ReplaceItemValue(ItemFieldNames.SendTo, to);
             if (cc != null && cc.Any())
@@ -93,42 +104,14 @@ namespace G1ANT.Addon.LotusNotes.Services
             return folders;
         }
 
-
-
         public IEnumerable<DocumentModel> GetDocumentsFromFolder(string folderName)
         {
-            var view = serverDatabase.GetView(folderName);
+            var view = serverDatabase.GetView(folderName) ?? throw new ArgumentException($"Folder {folderName} not found", nameof(folderName));
+            
             var document = view.GetFirstDocument();
             while (document != null)
             {
                 var model = new DocumentModel(document);
-                //Console.WriteLine($"\t\tDocument {document.Key}");
-                //var items = ((object[])document.Items).Cast<NotesItem>();
-
-                //if (document.HasEmbedded && document.HasItem("$File"))
-                //{
-                //    foreach (var item in items)
-                //    {
-                //        if (item.type == IT_TYPE.ATTACHMENT)
-                //        {
-                //            var v = ((IEnumerable)(item.Values)).Cast<string>().ToList();
-                //            //item.Values
-                //            //document.GetAttachment()
-                //        }
-                //    }
-                //}
-
-
-                //foreach (var item in items)
-                //{
-                //    if (item is NotesRichTextItem nrti)
-                //    {
-                //        var mimeEntity = nrti.GetMIMEEntity();
-                //        Console.WriteLine($"###\r\n\t\t\t\t{nrti.Name}: {nrti.GetUnformattedText()}");
-                //    }
-                //    else
-                //        Console.WriteLine($"***\r\n\t\t\t\t{item.Name}: {item.Text}");
-                //}
 
                 yield return model;
                 document = view.GetNextDocument(document);
@@ -136,6 +119,24 @@ namespace G1ANT.Addon.LotusNotes.Services
 
         }
 
+
+        public DocumentModel GetDocumentByURL(string url) => new DocumentModel(serverDatabase.GetDocumentByURL(url));
+        public DocumentModel GetDocumentByUNID(string unid) => new DocumentModel(serverDatabase.GetDocumentByUNID(unid));
+        public DocumentModel GetDocumentByID(string noteId) => new DocumentModel(serverDatabase.GetDocumentByID(noteId));
+
+
+
+        public IReadOnlyCollection<AttachmentModel> GetAttachments(DocumentModel document) => document.GetAttachments();
+
+        public void Save(DocumentModel document, bool force = true, bool makeResponse = false, bool markRead = false) => document.Save(force, makeResponse, markRead);
+
+        public void Remove(DocumentModel document, bool force = true) => document.Remove(force);
+        public void RemovePermanently(DocumentModel document, bool force = true) => document.RemovePermanently(force);
+
+        public void RemoveFromFolder(DocumentModel document, string folder) => document.RemoveFromFolder(folder);
+        public void PutInFolder(DocumentModel document, string folder) => document.PutInFolder(folder);
+
+        public void MakeResponse(DocumentModel response, DocumentModel respondTo) => response.MakeResponse(respondTo);
     }
 }
 
