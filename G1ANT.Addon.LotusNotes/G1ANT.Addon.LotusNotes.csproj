@@ -68,16 +68,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Documents\Items\NotesSaveAttachmentCommand.cs" />
+    <Compile Include="Commands\Documents\NotesPutDocumentCommand.cs" />
+    <Compile Include="Commands\Documents\NotesRemoveDocumentFromViewCommand.cs" />
+    <Compile Include="Commands\Documents\NotesRemoveDocumentCommand.cs" />
+    <Compile Include="Commands\Documents\NotesGetDocumentByIndexCommand.cs" />
+    <Compile Include="Commands\Documents\NotesGetDocumentByUnidCommand.cs" />
+    <Compile Include="Commands\Documents\NotesGetDocumentsFromFolderCommand.cs" />
+    <Compile Include="Commands\Documents\Items\NotesGetDocumentAttachmentsCommand.cs" />
+    <Compile Include="Commands\Documents\NotesGetViewDocumentsCountCommand.cs" />
     <Compile Include="Commands\LotusCloseCommand.cs" />
     <Compile Include="Commands\LotusConnectCommand.cs" />
+    <Compile Include="Commands\Views\LotusGetFolderNamesCommand.cs" />
     <Compile Include="LotusNotesAddon.cs" />
     <Compile Include="Models\AttachmentModel.cs" />
+    <Compile Include="Models\DatabaseModel.cs" />
+    <Compile Include="Models\PropertiesContainer.cs" />
+    <Compile Include="Models\PropertyModel.cs" />
+    <Compile Include="Models\ViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\DocumentItemModel.cs" />
     <Compile Include="Models\DocumentModel.cs" />
     <Compile Include="Services\ItemFieldNames.cs" />
     <Compile Include="Services\LotusNotesManager.cs" />
     <Compile Include="Services\LotusNotesWrapper.cs" />
+    <Compile Include="Structures\NotesAttachmentStructure.cs" />
+    <Compile Include="Structures\NotesDocumentStructure.cs" />
     <Compile Include="test.cs" />
   </ItemGroup>
   <ItemGroup>

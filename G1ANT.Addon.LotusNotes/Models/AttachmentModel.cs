@@ -14,11 +14,11 @@ using System.Linq;
 
 namespace G1ANT.Addon.LotusNotes.Models
 {
-    public class AttachmentModel
+    public class AttachmentModel : PropertiesContainer
     {
         private readonly NotesEmbeddedObject embeddedObject;
 
-        public string FileName { get; }
+        //public string FileName { get; }
         public int FileSize { get; }
         public string Name { get; }
         public string Source { get; }
@@ -32,8 +32,8 @@ namespace G1ANT.Addon.LotusNotes.Models
             if (!IsAttachmentItem(item))
                 throw new ArgumentException("Item is not an attachment", nameof(item));
             
-            FileName = ((IEnumerable)item.Values).Cast<string>().First();
-            embeddedObject = document.GetAttachment(FileName);
+            var name = ((IEnumerable)item.Values).Cast<string>().First();
+            embeddedObject = document.GetAttachment(name);
 
             FileSize = embeddedObject.FileSize;
             Name = embeddedObject.Name;

@@ -10,7 +10,6 @@
 using Domino;
 using G1ANT.Addon.LotusNotes.Models;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +18,7 @@ namespace G1ANT.Addon.LotusNotes.Services
     public class LotusNotesWrapper : IDisposable
     {
         private NotesSession session;
-        private NotesDatabase serverDatabase;
+        private DatabaseModel database;
 
         public int Id { get; set; }
 
@@ -37,7 +36,7 @@ namespace G1ANT.Addon.LotusNotes.Services
         public void Close()
         {
             session = null;
-            serverDatabase = null;
+            database = null;
         }
 
 
@@ -54,14 +53,11 @@ namespace G1ANT.Addon.LotusNotes.Services
         {
             session = new NotesSession();
             session.Initialize(password);
-            serverDatabase = session.GetDatabase(server, databaseFile, false);
+            database = new DatabaseModel(session.GetDatabase(server, databaseFile, false));
             // note to myself: that won't work: serverDatabase = session.CurrentDatabase; - unimplemented exception
 
-
-            if (!serverDatabase.IsOpen)
-            {
-                serverDatabase.Open();
-            }
+            if (!database.IsOpen)
+                database.Open();
         }
 
 
@@ -72,7 +68,7 @@ namespace G1ANT.Addon.LotusNotes.Services
 
         public void SendEmail(string[] to, string subject, string richTextMessage, string[] cc = null, bool saveMessageOnSend = true)
         {
-            var notesDocument = serverDatabase.CreateDocument();
+            var notesDocument = database.CreateDocument();
             notesDocument.SaveMessageOnSend = saveMessageOnSend;
 
             //notesDocument.ReplaceItemValue(ItemFieldNames.Form, "Memo"); // ???
@@ -94,35 +90,19 @@ namespace G1ANT.Addon.LotusNotes.Services
         /// Returns names of views marked as folders (IsFolder is set)
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyCollection<string> GetFolderNames()
-        {
-            var folders = ((IEnumerable)serverDatabase.Views)
-                .OfType<NotesView>()
-                .Where(v => v.IsFolder)
-                .Select(v => v.Name)
-                .ToList();
-            return folders;
-        }
+        public IReadOnlyCollection<string> GetFolderNames() => database.GetFolderNames();
 
-        public IEnumerable<DocumentModel> GetDocumentsFromFolder(string folderName)
-        {
-            var view = serverDatabase.GetView(folderName) ?? throw new ArgumentException($"Folder {folderName} not found", nameof(folderName));
-            
-            var document = view.GetFirstDocument();
-            while (document != null)
-            {
-                var model = new DocumentModel(document);
-
-                yield return model;
-                document = view.GetNextDocument(document);
-            }
-
-        }
+        //public IEnumerable<DocumentModel> GetDocumentsFromFolder(string folderName)
+        //{
+        //    var view = database.GetView(folderName) ?? throw new ArgumentException($"Folder {folderName} not found", nameof(folderName));
+        //    return view.GetDocuments();
+        //}
 
 
-        public DocumentModel GetDocumentByURL(string url) => new DocumentModel(serverDatabase.GetDocumentByURL(url));
-        public DocumentModel GetDocumentByUNID(string unid) => new DocumentModel(serverDatabase.GetDocumentByUNID(unid));
-        public DocumentModel GetDocumentByID(string noteId) => new DocumentModel(serverDatabase.GetDocumentByID(noteId));
+        public DocumentModel GetDocumentByIndex(ViewModel view, int index) => view.GetDocumentByIndex(index);
+        public DocumentModel GetDocumentByUrl(string url) => database.GetDocumentByUrl(url);
+        public DocumentModel GetDocumentByUnid(string unid) => database.GetDocumentByUnid(unid);
+        public DocumentModel GetDocumentById(string noteId) => database.GetDocumentById(noteId);
 
 
 
@@ -137,6 +117,8 @@ namespace G1ANT.Addon.LotusNotes.Services
         public void PutInFolder(DocumentModel document, string folder) => document.PutInFolder(folder);
 
         public void MakeResponse(DocumentModel response, DocumentModel respondTo) => response.MakeResponse(respondTo);
+
+        public ViewModel GetView(string viewName) => database.GetView(viewName);
     }
 }
 

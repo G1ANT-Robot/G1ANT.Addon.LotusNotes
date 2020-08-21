@@ -17,9 +17,9 @@ using System.Linq;
 
 namespace G1ANT.Addon.LotusNotes.Models
 {
-    public class DocumentModel
+    public class DocumentModel : PropertiesContainer
     {
-        public readonly NotesDocument document;
+        private readonly NotesDocument document;
 
         public string[] Authors { get; }
         //public dynamic ColumnValues { get; }
@@ -61,6 +61,7 @@ namespace G1ANT.Addon.LotusNotes.Models
         public string Subject { get; }
         public string From { get; }
         public string[] To { get; }
+        public string[] Cc { get; }
 
         public DocumentModel(NotesDocument document)
         {
@@ -79,7 +80,6 @@ namespace G1ANT.Addon.LotusNotes.Models
             IsUIDocOpen = document.IsUIDocOpen;
             IsValid = document.IsValid;
             Items = ((object[])document.Items).Cast<NotesItem>().Select(ni => new DocumentItemModel(ni)).ToList();
-            //Items = document.Items;
             Key = document.Key;
             LastAccessed = document.LastAccessed;
             LastModified = document.LastModified;
@@ -99,10 +99,14 @@ namespace G1ANT.Addon.LotusNotes.Models
             Subject = document.GetItemValue(ItemFieldNames.Subject)[0];
             From = document.GetItemValue(ItemFieldNames.From).ToString();
             To = ((IEnumerable)document.GetItemValue(ItemFieldNames.SendTo)).Cast<string>().ToArray();
+            Cc = ((IEnumerable)document.GetItemValue(ItemFieldNames.CopyTo)).Cast<string>().ToArray();
         }
 
 
-    public IReadOnlyCollection<AttachmentModel> GetAttachments()
+        internal NotesDocument GetNotesDocument() => document;
+
+
+        public IReadOnlyCollection<AttachmentModel> GetAttachments()
         {
             if (document.HasEmbedded && document.HasItem("$File"))
             {

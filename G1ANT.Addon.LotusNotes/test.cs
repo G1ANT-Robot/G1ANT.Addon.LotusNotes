@@ -15,7 +15,10 @@ namespace G1ANT.Addon.LotusNotes
 
             var folders = wrapper.GetFolderNames();
 
-            var inboxDocuments = wrapper.GetDocumentsFromFolder("($Inbox)");
+            var view = wrapper.GetView("($Inbox)");
+            var inboxDocuments = view.GetDocuments();
+
+            //var inboxDocuments = wrapper.GetDocumentsFromFolder("($Inbox)");
 
             var email = inboxDocuments.First();
             
@@ -26,7 +29,9 @@ namespace G1ANT.Addon.LotusNotes
             var items = email.Items.ToList();
             var attachments = email.GetAttachments();
 
-            email = wrapper.GetDocumentByUNID(email.UniversalID);
+            email = wrapper.GetDocumentByUnid(email.UniversalID);
+
+
 
 
             //var doc = email.document;
