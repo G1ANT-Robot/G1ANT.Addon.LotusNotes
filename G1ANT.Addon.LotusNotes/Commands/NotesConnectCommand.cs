@@ -1,5 +1,4 @@
-﻿
-/**
+﻿/**
 *    Copyright(C) G1ANT Ltd, All rights reserved
 *    Solution G1ANT.Addon, Project G1ANT.Addon.MSOffice
 *    www.g1ant.com
@@ -15,7 +14,7 @@ using G1ANT.Language;
 namespace G1ANT.Addon.LotusNotes.Commands
 {
     [Command(Name = "notes.connect", Tooltip = "Connects to Lotus Notes/IBM Notes server and remote database. Before you can use this command you must have Notes client installed and configured, because Notes interop uses user login stored on your host by Notes client. That's also explaining why there's no argument `login`.")]
-    public class LotusConnectCommand : Command
+    public class NotesConnectCommand : Command
     {
         public class Arguments : CommandArguments
         {
@@ -32,7 +31,7 @@ namespace G1ANT.Addon.LotusNotes.Commands
             public VariableStructure Result { get; set; } = new VariableStructure("result");
         }
 
-        public LotusConnectCommand(AbstractScripter scripter) : base(scripter)
+        public NotesConnectCommand(AbstractScripter scripter) : base(scripter)
         {
         }
 

@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Commands\Documents\Items\NotesSaveAttachmentCommand.cs" />
     <Compile Include="Commands\Documents\NotesPutDocumentCommand.cs" />
+    <Compile Include="Commands\Documents\NotesSendDocumentCommand.cs" />
     <Compile Include="Commands\Documents\NotesRemoveDocumentFromViewCommand.cs" />
     <Compile Include="Commands\Documents\NotesRemoveDocumentCommand.cs" />
     <Compile Include="Commands\Documents\NotesGetDocumentByIndexCommand.cs" />
@@ -78,7 +79,7 @@
     <Compile Include="Commands\Documents\Items\NotesGetDocumentAttachmentsCommand.cs" />
     <Compile Include="Commands\Documents\NotesGetViewDocumentsCountCommand.cs" />
     <Compile Include="Commands\LotusCloseCommand.cs" />
-    <Compile Include="Commands\LotusConnectCommand.cs" />
+    <Compile Include="Commands\NotesConnectCommand.cs" />
     <Compile Include="Commands\Views\LotusGetFolderNamesCommand.cs" />
     <Compile Include="LotusNotesAddon.cs" />
     <Compile Include="Models\AttachmentModel.cs" />

@@ -23,7 +23,7 @@ namespace G1ANT.Addon.LotusNotes.Commands.Documents
             public NotesDocumentStructure Document { get; set; }
 
             [Argument(Required = true, Tooltip = "Name of view (folder) where from document should be removed")]
-            public TextStructure Folder { get; set; } = new TextStructure("($Inbox)");
+            public TextStructure Folder { get; set; }
         }
 
         public NotesRemoveDocumentFromViewCommand(AbstractScripter scripter) : base(scripter)

@@ -19,7 +19,7 @@ namespace G1ANT.Addon.LotusNotes.Commands.Documents
     {
         public class Arguments : CommandArguments
         {
-            [Argument(Required = true, Tooltip = "Name of view (folder) which contents will be counted. Default is inbox (`($Inbox)`), list of all folders can be obtained using `notes.getfoldernames` command")]
+            [Argument(Tooltip = "Name of view (folder) which contents will be counted. Default is inbox (`($Inbox)`), list of all folders can be obtained using `notes.getfoldernames` command")]
             public TextStructure Folder { get; set; } = new TextStructure("($Inbox)");
 
             [Argument(Tooltip = "Name of a variable where result will be stored")]

@@ -61,12 +61,12 @@ namespace G1ANT.Addon.LotusNotes.Services
         }
 
 
-        public void SendEmail(string to, string subject, string richTextMessage, string cc = "")
+        public void SendEmail(string to, string subject, string richTextMessage, string cc = "", bool saveMessageOnSend = true)
         {
-            SendEmail(new[] { to }, subject, richTextMessage, string.IsNullOrEmpty(cc) ? null : new[] { cc });
+            SendEmail(new[] { to }, subject, richTextMessage, string.IsNullOrEmpty(cc) ? null : new[] { cc }, saveMessageOnSend);
         }
 
-        public void SendEmail(string[] to, string subject, string richTextMessage, string[] cc = null, bool saveMessageOnSend = true)
+        public void SendEmail(ICollection<string> to, string subject, string richTextMessage, ICollection<string> cc = null, bool saveMessageOnSend = true)
         {
             var notesDocument = database.CreateDocument();
             notesDocument.SaveMessageOnSend = saveMessageOnSend;
