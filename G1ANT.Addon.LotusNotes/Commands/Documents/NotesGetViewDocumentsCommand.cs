@@ -17,7 +17,7 @@ using System.Linq;
 namespace G1ANT.Addon.LotusNotes.Commands.Documents
 {
     [Command(Name = "notes.getemails", Tooltip = "Get documents (emails) from specified view (folder)")]
-    public class NotesGetDocumentsFromFolderCommand : Command
+    public class NotesGetViewDocumentsCommand : Command
     {
         public class Arguments : CommandArguments
         {
@@ -28,7 +28,7 @@ namespace G1ANT.Addon.LotusNotes.Commands.Documents
             public VariableStructure Result { get; set; } = new VariableStructure("result");
         }
 
-        public NotesGetDocumentsFromFolderCommand(AbstractScripter scripter) : base(scripter)
+        public NotesGetViewDocumentsCommand(AbstractScripter scripter) : base(scripter)
         {
         }
 

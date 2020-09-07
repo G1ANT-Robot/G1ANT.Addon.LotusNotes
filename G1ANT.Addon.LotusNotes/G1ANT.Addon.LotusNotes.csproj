@@ -73,9 +73,8 @@
     <Compile Include="Commands\Documents\NotesSendDocumentCommand.cs" />
     <Compile Include="Commands\Documents\NotesRemoveDocumentFromViewCommand.cs" />
     <Compile Include="Commands\Documents\NotesRemoveDocumentCommand.cs" />
-    <Compile Include="Commands\Documents\NotesGetDocumentByIndexCommand.cs" />
-    <Compile Include="Commands\Documents\NotesGetDocumentByUnidCommand.cs" />
-    <Compile Include="Commands\Documents\NotesGetDocumentsFromFolderCommand.cs" />
+    <Compile Include="Commands\Documents\NotesGetDocumentCommand.cs" />
+    <Compile Include="Commands\Documents\NotesGetViewDocumentsCommand.cs" />
     <Compile Include="Commands\Documents\Items\NotesGetDocumentAttachmentsCommand.cs" />
     <Compile Include="Commands\Documents\NotesGetViewDocumentsCountCommand.cs" />
     <Compile Include="Commands\NotesCloseCommand.cs" />

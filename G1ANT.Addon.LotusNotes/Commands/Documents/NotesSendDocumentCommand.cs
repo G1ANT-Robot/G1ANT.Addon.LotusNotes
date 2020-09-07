@@ -10,7 +10,7 @@
 
 using G1ANT.Addon.LotusNotes.Services;
 using G1ANT.Language;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 
 namespace G1ANT.Addon.LotusNotes.Commands.Documents
@@ -21,16 +21,16 @@ namespace G1ANT.Addon.LotusNotes.Commands.Documents
         public class Arguments : CommandArguments
         {
             [Argument(Tooltip = "")]
-            public TextStructure To { get; set; }
+            public Structure To { get; set; }
 
             [Argument(Tooltip = "")]
-            public ListStructure AdditionalTo { get; set; }
+            public Structure Cc { get; set; }
 
             [Argument(Tooltip = "")]
-            public TextStructure Cc { get; set; }
+            public Structure Bcc { get; set; }
 
             [Argument(Tooltip = "")]
-            public ListStructure AdditionalCc { get; set; }
+            public Structure PathsToAttachments { get; set; }
 
             [Argument(Required = true, Tooltip = "")]
             public TextStructure Subject { get; set; }
@@ -48,29 +48,33 @@ namespace G1ANT.Addon.LotusNotes.Commands.Documents
 
         public void Execute(Arguments arguments)
         {
-            var to = OptionalJoinElementAndList(arguments.To, arguments.AdditionalTo);
-            var cc = OptionalJoinElementAndList(arguments.Cc, arguments.AdditionalCc);
+            var to = GetStructureValueAsArray(arguments.To);
+            var cc = GetStructureValueAsArray(arguments.Cc);
+            var bcc = GetStructureValueAsArray(arguments.Bcc);
+            var attachments = GetStructureValueAsArray(arguments.PathsToAttachments);
 
             LotusNotesManager.CurrentWrapper.SendEmail(
                 to,
                 arguments.Subject.Value,
                 arguments.Message.Value,
                 cc,
+                bcc,
+                attachments,
                 arguments.SaveMessageOnSend.Value
             );
         }
 
-        private static List<string> OptionalJoinElementAndList(TextStructure element, ListStructure list)
+        private static string[] GetStructureValueAsArray(Structure structure)
         {
-            var to = new List<string>();
+            if (structure?.Object == null)
+                return new string[0];
 
-            if (!string.IsNullOrWhiteSpace(element?.Value))
-                to.Add(element.Value);
-
-            if (list?.Value?.Any() == true)
-                to.AddRange(list.Value.Select(t => t.ToString()));
-
-            return to;
+            if (structure is ListStructure toList)
+                return toList.Value.Cast<string>().ToArray();
+            else if (structure is TextStructure text)
+                return new string[] { text.Value };
+            else
+                throw new ArgumentException("Argument is not a text nor list");
         }
     }
 }
