@@ -38,7 +38,7 @@ namespace G1ANT.Addon.LotusNotes.Commands
         public void Execute(Arguments arguments)
         {
             var wrapper = LotusNotesManager.CreateWrapper();
-            LotusNotesManager.CurrentWrapper.Connect(arguments.Password.Value, arguments.Server.Value, arguments.DatabaseFile.Value);
+            wrapper.Connect(arguments.Password.Value, arguments.Server.Value, arguments.DatabaseFile.Value);
             LotusNotesManager.RegisterAndSetAsCurrentWrapper(wrapper);
 
             Scripter.Variables.SetVariableValue(arguments.Result.Value, new IntegerStructure(wrapper.Id));
