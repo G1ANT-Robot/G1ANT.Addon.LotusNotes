@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{407750D0-AA8B-45DB-9BE6-8F717E063428}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>G1ANT.Addon.LotusNotes</RootNamespace>
     <AssemblyName>G1ANT.Addon.LotusNotes</AssemblyName>
@@ -78,7 +78,7 @@
     <Compile Include="Commands\Documents\NotesGetDocumentsFromFolderCommand.cs" />
     <Compile Include="Commands\Documents\Items\NotesGetDocumentAttachmentsCommand.cs" />
     <Compile Include="Commands\Documents\NotesGetViewDocumentsCountCommand.cs" />
-    <Compile Include="Commands\LotusCloseCommand.cs" />
+    <Compile Include="Commands\NotesCloseCommand.cs" />
     <Compile Include="Commands\NotesConnectCommand.cs" />
     <Compile Include="Commands\Views\LotusGetFolderNamesCommand.cs" />
     <Compile Include="LotusNotesAddon.cs" />

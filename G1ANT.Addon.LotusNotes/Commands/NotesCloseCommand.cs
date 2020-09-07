@@ -15,7 +15,7 @@ using G1ANT.Language;
 namespace G1ANT.Addon.LotusNotes.Commands
 {
     [Command(Name = "notes.close", Tooltip = "Connects to Lotus Notes/IBM Notes server and remote database. Before you can use this command you must have Notes client installed and configured, because Notes interop uses user login stored on your host by Notes client. That's also explaining why there's no argument `login`.")]
-    public class LotusCloseCommand : Command
+    public class NotesCloseCommand : Command
     {
         public class Arguments : CommandArguments
         {
@@ -23,7 +23,7 @@ namespace G1ANT.Addon.LotusNotes.Commands
             public IntegerStructure Id { get; set; }
         }
 
-        public LotusCloseCommand(AbstractScripter scripter) : base(scripter)
+        public NotesCloseCommand(AbstractScripter scripter) : base(scripter)
         {
         }
 
