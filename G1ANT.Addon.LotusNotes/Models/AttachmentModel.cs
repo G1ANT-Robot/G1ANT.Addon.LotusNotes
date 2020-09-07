@@ -7,7 +7,9 @@
 *    See License.txt file in the project root for full license information.
 *
 */
+
 using Domino;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Linq;
@@ -31,7 +33,7 @@ namespace G1ANT.Addon.LotusNotes.Models
         {
             if (!IsAttachmentItem(item))
                 throw new ArgumentException("Item is not an attachment", nameof(item));
-            
+
             var name = ((IEnumerable)item.Values).Cast<string>().First();
             embeddedObject = document.GetAttachment(name);
 
@@ -45,6 +47,8 @@ namespace G1ANT.Addon.LotusNotes.Models
         //public void DoVerb(string verb) => embeddedObject.DoVerb(verb);
         public void ExtractFile(string path) => embeddedObject.ExtractFile(path);
         public void Remove() => embeddedObject.Remove();
+
+        public override string ToString() => JObject.FromObject(this).ToString();
     }
 }
 

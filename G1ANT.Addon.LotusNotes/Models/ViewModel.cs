@@ -1,4 +1,5 @@
 ﻿using Domino;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -109,5 +110,7 @@ namespace G1ANT.Addon.LotusNotes.Models
         //bool Lock(ref object pName, bool bProvisionalOK = false);
         //bool LockProvisional(ref object pName);
         //void Unlock();
+
+        public override string ToString() => JObject.FromObject(this).ToString();
     }
 }

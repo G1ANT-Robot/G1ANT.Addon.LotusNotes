@@ -9,6 +9,7 @@
 */
 using Domino;
 using G1ANT.Addon.LotusNotes.Services;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -132,6 +133,7 @@ namespace G1ANT.Addon.LotusNotes.Models
 
         public void MakeResponse(DocumentModel model) => document.MakeResponse(model.document);
 
+        public override string ToString() => JObject.FromObject(this).ToString();
     }
 }
 

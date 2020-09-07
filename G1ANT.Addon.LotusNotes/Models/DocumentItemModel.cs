@@ -8,7 +8,6 @@
 *
 */
 using Domino;
-using System.Collections;
 using System.Linq;
 
 namespace G1ANT.Addon.LotusNotes.Models
@@ -51,8 +50,8 @@ namespace G1ANT.Addon.LotusNotes.Models
             Type = item.type;
             ValueLength = item.ValueLength;
 
-            if (item.Values is object[])
-                Values = (object[])item.Values;
+            if (item.Values is object[] values)
+                Values = values;
             else if (item.Values != null)
                 Values = new object[] { (object)item.Values };
 
