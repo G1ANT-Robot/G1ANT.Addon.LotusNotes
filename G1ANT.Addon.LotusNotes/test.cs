@@ -20,18 +20,19 @@ namespace G1ANT.Addon.LotusNotes
 
             //var inboxDocuments = wrapper.GetDocumentsFromFolder("($Inbox)");
 
+            //wrapper.ConvertEmailToRichText = false;
             var email = inboxDocuments.First();
-            
+
             var subject = email.Subject;
             var from = email.From;
             var to = email.To;
 
-            var items = email.Items.ToList();
+            var items = email.Items.Value.ToList();
             var attachments = email.GetAttachments();
 
             email = wrapper.GetDocumentByUnid(email.UniversalID);
 
-
+            wrapper.SendEmail(new string[] { "lukasz.fronczyk@g1ant.com" }, "zażółć gęślą jaźń", "<body>body<p>zażółć gęślą jaźń</p><a href='http://g1ant.com'>link test</a></body>");
 
 
             //var doc = email.document;

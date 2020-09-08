@@ -40,7 +40,7 @@ namespace G1ANT.Addon.LotusNotes.Models
         public bool IsSigned { get; }
         public bool IsUIDocOpen { get; }
         public bool IsValid { get; }
-        public IReadOnlyCollection<DocumentItemModel> Items { get; }
+        public Lazy<DocumentItemModel[]> Items { get; }
         public string Key { get; }
         public dynamic LastAccessed { get; }
         public dynamic LastModified { get; }
@@ -101,12 +101,17 @@ namespace G1ANT.Addon.LotusNotes.Models
             UniversalID = document.UniversalID;
             IsEncrypted = document.IsEncrypted;
 
-            Items = ((object[])document.Items).Cast<NotesItem>().Select(ni => new DocumentItemModel(ni)).ToList();
+            Items = new Lazy<DocumentItemModel[]>(() => GetItems(document));
 
             Subject = document.GetItemValue(ItemFieldNames.Subject)[0];
             From = document.GetItemValue(ItemFieldNames.From).ToString();
             To = ((IEnumerable)document.GetItemValue(ItemFieldNames.SendTo)).Cast<string>().ToArray();
             Cc = ((IEnumerable)document.GetItemValue(ItemFieldNames.CopyTo)).Cast<string>().ToArray();
+        }
+
+        private static DocumentItemModel[] GetItems(NotesDocument document)
+        {
+            return ((object[])document.Items).Cast<NotesItem>().Select(ni => new DocumentItemModel(ni)).ToArray();
         }
 
         private void LoadEmailContent(LotusNotesWrapper wrapper)
