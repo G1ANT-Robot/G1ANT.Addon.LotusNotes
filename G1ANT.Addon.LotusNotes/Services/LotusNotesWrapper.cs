@@ -42,6 +42,7 @@ namespace G1ANT.Addon.LotusNotes.Services
 
         public void Dispose() => Close();
 
+
         /// <summary>
         /// Connects to server using the last login used by the IBM Notes app. If you want to change
         /// the login you must manually sign-in using different login with IBM Notes app.
@@ -53,7 +54,8 @@ namespace G1ANT.Addon.LotusNotes.Services
         {
             session = new NotesSession();
             session.Initialize(password);
-            database = new DatabaseModel(session.GetDatabase(server, databaseFile, false));
+
+            database = new DatabaseModel(this, session.GetDatabase(server, databaseFile, false));
             // note to myself: that won't work: serverDatabase = session.CurrentDatabase; - unimplemented exception
 
             if (!database.IsOpen)
@@ -61,28 +63,60 @@ namespace G1ANT.Addon.LotusNotes.Services
         }
 
 
-        public void SendEmail(string to, string subject, string richTextMessage, string cc = "", bool saveMessageOnSend = true)
-        {
-            SendEmail(new[] { to }, subject, richTextMessage, string.IsNullOrEmpty(cc) ? null : new[] { cc }, saveMessageOnSend);
-        }
 
-        public void SendEmail(ICollection<string> to, string subject, string richTextMessage, ICollection<string> cc = null, bool saveMessageOnSend = true)
+        public void SendEmail(string[] to, string subject, string message, string[] cc = null, string[] bcc = null, string[] attachmentPaths = null, bool saveMessageOnSend = true)
         {
+            ValidateRecipients(to);
+
+            session.ConvertMime = false;
+
             var notesDocument = database.CreateDocument();
             notesDocument.SaveMessageOnSend = saveMessageOnSend;
 
-            //notesDocument.ReplaceItemValue(ItemFieldNames.Form, "Memo"); // ???
+            //notesDocument.ReplaceItemValue(ItemFieldNames.Form, "Memo"); // "Form" seems to be a name of sender
 
-            notesDocument.ReplaceItemValue(ItemFieldNames.SendTo, to);
-            if (cc != null && cc.Any())
-                notesDocument.ReplaceItemValue(ItemFieldNames.CopyTo, cc);
+            notesDocument.ReplaceItemValue(ItemFieldNames.SendTo, string.Join(";", to));
+            if (cc?.Any() == true)
+                notesDocument.ReplaceItemValue(ItemFieldNames.CopyTo, string.Join(";", cc));
+            if (bcc?.Any() == true)
+                notesDocument.ReplaceItemValue(ItemFieldNames.BlindCopyTo, string.Join(";", bcc));
+
             notesDocument.ReplaceItemValue(ItemFieldNames.Subject, subject);
 
-            var richTextItem = notesDocument.CreateRichTextItem(ItemFieldNames.Body);
-            richTextItem.AppendText(richTextMessage);
+            var body = notesDocument.CreateMIMEEntity();
+            var stream = session.CreateStream();
+            stream.WriteText(message);
+            body.SetContentFromText(stream, "text/html;charset=utf-8", MIME_ENCODING.ENC_IDENTITY_8BIT);
+            stream.Close(); // ?
+
+
+            if (attachmentPaths?.Any() == true)
+            {
+                int count = 0;
+                foreach (var attachmentPath in attachmentPaths)
+                {
+                    var attachmentName = $"Attachment{count}";
+                    var notesRtf = notesDocument.CreateRichTextItem(attachmentName);
+                    var embedObj = notesRtf.EmbedObject(EMBED_TYPE.EMBED_ATTACHMENT, "", attachmentPath, attachmentName);
+                    count++;
+                }
+            }
+
+            //var richTextItem = notesDocument.CreateRichTextItem(ItemFieldNames.Body);
+            //richTextItem.AppendText(richTextMessage);
 
             var oItemValue = notesDocument.GetItemValue(ItemFieldNames.SendTo);
-            notesDocument.Send(false, ref oItemValue);
+
+            notesDocument.Send(false, oItemValue);
+            session.ConvertMime = true;
+        }
+
+        private static void ValidateRecipients(string[] to)
+        {
+            if (!to.Any())
+                throw new ArgumentException("`To` argument is empty");
+            if (to.Any(v => string.IsNullOrEmpty(v)))
+                throw new ArgumentException("Some elements of argument `to` are empty");
         }
 
 
@@ -105,7 +139,6 @@ namespace G1ANT.Addon.LotusNotes.Services
         public DocumentModel GetDocumentById(string noteId) => database.GetDocumentById(noteId);
 
 
-
         public IReadOnlyCollection<AttachmentModel> GetAttachments(DocumentModel document) => document.GetAttachments();
 
         public void Save(DocumentModel document, bool force = true, bool makeResponse = false, bool markRead = false) => document.Save(force, makeResponse, markRead);
@@ -121,4 +154,3 @@ namespace G1ANT.Addon.LotusNotes.Services
         public ViewModel GetView(string viewName) => database.GetView(viewName);
     }
 }
-

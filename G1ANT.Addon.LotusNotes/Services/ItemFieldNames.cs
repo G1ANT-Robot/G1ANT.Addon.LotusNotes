@@ -15,6 +15,7 @@ namespace G1ANT.Addon.LotusNotes.Services
         public const string Form = "Form";
         public const string SendTo = "SendTo";
         public const string CopyTo = "CopyTo";
+        public const string BlindCopyTo = "BlindCopyTo";
         public const string Subject = "Subject";
         public const string Body = "Body";
         public const string From = "From";

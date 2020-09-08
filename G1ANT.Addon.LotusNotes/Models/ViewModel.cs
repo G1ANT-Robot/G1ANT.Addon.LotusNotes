@@ -1,4 +1,5 @@
 ﻿using Domino;
+using G1ANT.Addon.LotusNotes.Services;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
@@ -8,6 +9,7 @@ namespace G1ANT.Addon.LotusNotes.Models
 {
     public class ViewModel : IEnumerable<DocumentModel>
     {
+        private readonly LotusNotesWrapper wrapper;
         private readonly NotesView view;
 
         //dynamic Aliases { get; set; }
@@ -46,8 +48,9 @@ namespace G1ANT.Addon.LotusNotes.Models
 
 
 
-        public ViewModel(NotesView view)
+        public ViewModel(LotusNotesWrapper wrapper, NotesView view)
         {
+            this.wrapper = wrapper;
             this.view = view;
         }
 
@@ -82,7 +85,7 @@ namespace G1ANT.Addon.LotusNotes.Models
         //NotesDocument GetDocumentByKey(object Keys, bool bExact = false);
         //NotesViewEntry GetEntryByKey(object Keys, bool bExact = false);
 
-        private DocumentModel CreateModelOrNull(NotesDocument notesDocument) => notesDocument != null ? new DocumentModel(notesDocument) : null;
+        private DocumentModel CreateModelOrNull(NotesDocument notesDocument) => notesDocument != null ? new DocumentModel(wrapper, notesDocument) : null;
 
         public DocumentModel GetFirstDocument() => CreateModelOrNull(view.GetFirstDocument());
         public DocumentModel GetLastDocument() => CreateModelOrNull(view.GetLastDocument());

@@ -22,6 +22,7 @@ namespace G1ANT.Addon.LotusNotes.Models
     {
         private readonly NotesDocument document;
 
+        public bool HasMime { get; private set; }
         public string[] Authors { get; }
         //public dynamic ColumnValues { get; }
         public DateTime Created { get; }
@@ -63,10 +64,15 @@ namespace G1ANT.Addon.LotusNotes.Models
         public string From { get; }
         public string[] To { get; }
         public string[] Cc { get; }
+        public string ContentText { get; private set; }
+        public string ContentHtml { get; private set; }
 
-        public DocumentModel(NotesDocument document)
+
+        public DocumentModel(LotusNotesWrapper wrapper, NotesDocument document)
         {
             this.document = document;
+
+            LoadEmailContent(wrapper);
 
             Authors = ((IEnumerable)document.Authors).Cast<string>().ToArray();
             Created = document.Created;
@@ -80,7 +86,6 @@ namespace G1ANT.Addon.LotusNotes.Models
             IsSigned = document.IsSigned;
             IsUIDocOpen = document.IsUIDocOpen;
             IsValid = document.IsValid;
-            Items = ((object[])document.Items).Cast<NotesItem>().Select(ni => new DocumentItemModel(ni)).ToList();
             Key = document.Key;
             LastAccessed = document.LastAccessed;
             LastModified = document.LastModified;
@@ -96,6 +101,7 @@ namespace G1ANT.Addon.LotusNotes.Models
             UniversalID = document.UniversalID;
             IsEncrypted = document.IsEncrypted;
 
+            Items = ((object[])document.Items).Cast<NotesItem>().Select(ni => new DocumentItemModel(ni)).ToList();
 
             Subject = document.GetItemValue(ItemFieldNames.Subject)[0];
             From = document.GetItemValue(ItemFieldNames.From).ToString();
@@ -103,6 +109,73 @@ namespace G1ANT.Addon.LotusNotes.Models
             Cc = ((IEnumerable)document.GetItemValue(ItemFieldNames.CopyTo)).Cast<string>().ToArray();
         }
 
+        private void LoadEmailContent(LotusNotesWrapper wrapper)
+        {
+            var convertEmailToRichText = wrapper.ConvertEmailToRichText;
+            try
+            {
+                wrapper.ConvertEmailToRichText = false;
+                HasMime = document.HasItem("$NoteHasNativeMIME");
+                if (HasMime)
+                {
+                    ContentHtml = GetMimeContent("text/html");
+                    ContentText = GetMimeContent("text/plain");
+                }
+            }
+            finally
+            {
+                wrapper.ConvertEmailToRichText = convertEmailToRichText;
+            }
+
+            if (string.IsNullOrEmpty(ContentText))
+            {
+                var textItem = new DocumentItemModel(((object[])document.Items)
+                    .Cast<NotesItem>()
+                    .FirstOrDefault(i => i.Name == ItemFieldNames.Body)
+                );
+                ContentText = textItem.Value;
+            }
+        }
+
+        private string GetMimeContent(string contentType)
+        {
+            var contentTypeParts = contentType.Split('/');
+            var mime = document.GetMIMEEntity("Body");
+            if (mime != null)
+            {
+                if (mime.ContentType == "multipart")
+                {
+                    var child1 = mime.GetFirstChildEntity();
+                    while (child1 != null)
+                    {
+                        if (child1.ContentType == contentTypeParts[0] && child1.ContentSubType == contentTypeParts[1])
+                        {
+                            return child1.ContentAsText;
+                        }
+                        var child2 = child1.GetFirstChildEntity();
+                        if (child2 == null)
+                        {
+                            child2 = child1.GetNextSibling();
+                            if (child2 == null)
+                            {
+                                child2 = child1.GetParentEntity();
+                                if (child2 != null)
+                                {
+                                    child2 = child2.GetNextSibling();
+                                }
+                            }
+                        }
+                        child1 = child2;
+                    }
+                }
+                else
+                {
+                    return mime.ContentAsText;
+                }
+            }
+
+            return "";
+        }
 
         internal NotesDocument GetNotesDocument() => document;
 

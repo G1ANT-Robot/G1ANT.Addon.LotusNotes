@@ -1,4 +1,5 @@
 ﻿using Domino;
+using G1ANT.Addon.LotusNotes.Services;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,30 +9,32 @@ namespace G1ANT.Addon.LotusNotes.Models
 {
     public class DatabaseModel
     {
+        private readonly LotusNotesWrapper wrapper;
         private readonly NotesDatabase database;
 
         public bool IsOpen => database.IsOpen;
 
 
-        public DatabaseModel(NotesDatabase database)
+        public DatabaseModel(LotusNotesWrapper wrapper, NotesDatabase database)
         {
+            this.wrapper = wrapper;
             this.database = database;
         }
 
-        private ViewModel CreateModelOrNull(NotesView view) => view != null ? new ViewModel(view) : null;
-        private DocumentModel CreateModelOrNull(NotesDocument document) => document != null ? new DocumentModel(document) : null;
+        private ViewModel CreateModelOrNull(NotesView view) => view != null ? new ViewModel(wrapper, view) : null;
+        private DocumentModel CreateModelOrNull(NotesDocument document) => document != null ? new DocumentModel(wrapper, document) : null;
 
 
-        public DocumentModel GetDocumentByUrl(string url) => new DocumentModel(database.GetDocumentByURL(url));
-        public DocumentModel GetDocumentByUnid(string unid) => new DocumentModel(database.GetDocumentByUNID(unid));
-        public DocumentModel GetDocumentById(string noteId) => new DocumentModel(database.GetDocumentByID(noteId));
+        public DocumentModel GetDocumentByUrl(string url) => new DocumentModel(wrapper, database.GetDocumentByURL(url));
+        public DocumentModel GetDocumentByUnid(string unid) => new DocumentModel(wrapper, database.GetDocumentByUNID(unid));
+        public DocumentModel GetDocumentById(string noteId) => new DocumentModel(wrapper, database.GetDocumentByID(noteId));
 
         public NotesDocument CreateDocument() => database.CreateDocument();
 
         public IEnumerable<DocumentModel> GetDocumentsFromFolder(string folderName)
         {
             var view = database.GetView(folderName) ?? throw new ArgumentException($"Folder {folderName} not found", nameof(folderName));
-            return new ViewModel(view);
+            return new ViewModel(wrapper, view);
         }
 
 
