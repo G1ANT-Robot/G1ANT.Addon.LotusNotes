@@ -56,7 +56,7 @@ namespace G1ANT.Addon.LotusNotes.Services
             session.Initialize(password);
 
             database = new DatabaseModel(this, session.GetDatabase(server, databaseFile, false));
-            // note to myself: that won't work: serverDatabase = session.CurrentDatabase; - unimplemented exception
+            //// note to myself: that won't work: serverDatabase = session.CurrentDatabase; - unimplemented exception
 
             if (!database.IsOpen)
                 database.Open();
@@ -73,22 +73,18 @@ namespace G1ANT.Addon.LotusNotes.Services
             var notesDocument = database.CreateDocument();
             notesDocument.SaveMessageOnSend = saveMessageOnSend;
 
-            //notesDocument.ReplaceItemValue(ItemFieldNames.Form, "Memo"); // "Form" seems to be a name of sender
+            //notesDocument.ReplaceItemValue(ItemFieldNames.Form, "Memo"); // "Form" seems to be a name of sender, but is not visible anywhere
 
-            notesDocument.ReplaceItemValue(ItemFieldNames.SendTo, string.Join(";", to));
+            notesDocument.ReplaceItemValue(ItemFieldNames.SendTo, to);
             if (cc?.Any() == true)
-                notesDocument.ReplaceItemValue(ItemFieldNames.CopyTo, string.Join(";", cc));
+                notesDocument.ReplaceItemValue(ItemFieldNames.CopyTo, cc);
             if (bcc?.Any() == true)
-                notesDocument.ReplaceItemValue(ItemFieldNames.BlindCopyTo, string.Join(";", bcc));
+                notesDocument.ReplaceItemValue(ItemFieldNames.BlindCopyTo, bcc);
 
             notesDocument.ReplaceItemValue(ItemFieldNames.Subject, subject);
 
-            var body = notesDocument.CreateMIMEEntity();
-            var stream = session.CreateStream();
-            stream.WriteText(message);
-            body.SetContentFromText(stream, "text/html;charset=utf-8", MIME_ENCODING.ENC_IDENTITY_8BIT);
-            stream.Close(); // ?
-
+            SetHtmlContent(notesDocument, message);
+            //SetTextContent(notesDocument);
 
             if (attachmentPaths?.Any() == true)
             {
@@ -102,13 +98,25 @@ namespace G1ANT.Addon.LotusNotes.Services
                 }
             }
 
-            //var richTextItem = notesDocument.CreateRichTextItem(ItemFieldNames.Body);
-            //richTextItem.AppendText(richTextMessage);
-
             var oItemValue = notesDocument.GetItemValue(ItemFieldNames.SendTo);
 
             notesDocument.Send(false, oItemValue);
             session.ConvertMime = true;
+        }
+
+        private void SetTextContent(NotesDocument notesDocument, string richTextMessage)
+        {
+            var richTextItem = notesDocument.CreateRichTextItem(ItemFieldNames.Body);
+            richTextItem.AppendText(richTextMessage);
+        }
+
+        private void SetHtmlContent(NotesDocument notesDocument, string message)
+        {
+            var body = notesDocument.CreateMIMEEntity();
+            var stream = session.CreateStream();
+            stream.WriteText(message);
+            body.SetContentFromText(stream, "text/html;charset=utf-8", MIME_ENCODING.ENC_IDENTITY_8BIT);
+            stream.Close(); // ?
         }
 
         private static void ValidateRecipients(string[] to)
@@ -125,12 +133,6 @@ namespace G1ANT.Addon.LotusNotes.Services
         /// </summary>
         /// <returns></returns>
         public IReadOnlyCollection<string> GetFolderNames() => database.GetFolderNames();
-
-        //public IEnumerable<DocumentModel> GetDocumentsFromFolder(string folderName)
-        //{
-        //    var view = database.GetView(folderName) ?? throw new ArgumentException($"Folder {folderName} not found", nameof(folderName));
-        //    return view.GetDocuments();
-        //}
 
 
         public DocumentModel GetDocumentByIndex(ViewModel view, int index) => view.GetDocumentByIndex(index);
