@@ -150,27 +150,27 @@ namespace G1ANT.Addon.LotusNotes.Models
             {
                 if (mime.ContentType == "multipart")
                 {
-                    var child1 = mime.GetFirstChildEntity();
-                    while (child1 != null)
+                    var child = mime.GetFirstChildEntity();
+                    while (child != null)
                     {
-                        if (child1.ContentType == contentTypeParts[0] && child1.ContentSubType == contentTypeParts[1])
+                        if (child.ContentType == contentTypeParts[0] && child.ContentSubType == contentTypeParts[1])
                         {
-                            return child1.ContentAsText;
+                            return child.ContentAsText;
                         }
-                        var child2 = child1.GetFirstChildEntity();
-                        if (child2 == null)
+                        var innerChildOrSibling = child.GetFirstChildEntity();
+                        if (innerChildOrSibling == null)
                         {
-                            child2 = child1.GetNextSibling();
-                            if (child2 == null)
+                            innerChildOrSibling = child.GetNextSibling();
+                            if (innerChildOrSibling == null)
                             {
-                                child2 = child1.GetParentEntity();
-                                if (child2 != null)
+                                innerChildOrSibling = child.GetParentEntity();
+                                if (innerChildOrSibling != null)
                                 {
-                                    child2 = child2.GetNextSibling();
+                                    innerChildOrSibling = innerChildOrSibling.GetNextSibling();
                                 }
                             }
                         }
-                        child1 = child2;
+                        child = innerChildOrSibling;
                     }
                 }
                 else
