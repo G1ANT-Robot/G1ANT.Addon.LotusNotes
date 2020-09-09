@@ -30,7 +30,7 @@ namespace G1ANT.Addon.LotusNotes
             var items = email.Items.Value.ToList();
             var attachments = email.GetAttachments();
 
-            email = wrapper.GetDocumentByUnid(email.UniversalID);
+            email = wrapper.GetDocumentByUnid(email.Unid);
 
             wrapper.SendEmail(new string[] { "lukasz.fronczyk@g1ant.com" }, "zażółć gęślą jaźń", "<body>body<p>zażółć gęślą jaźń</p><a href='http://g1ant.com'>link test</a></body>");
 

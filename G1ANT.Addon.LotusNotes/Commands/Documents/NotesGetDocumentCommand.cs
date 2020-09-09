@@ -16,7 +16,7 @@ using System;
 
 namespace G1ANT.Addon.LotusNotes.Commands.Documents
 {
-    [Command(Name = "notes.getemail", Tooltip = "Get document (emails) by its index in parent view (folder) or by Universal Notes Identifier (UNID - this is the value from email's property `UniversalID`)")]
+    [Command(Name = "notes.getemail", Tooltip = "Get document (emails) by its index in parent view (folder) or by Universal Notes Identifier (UNID - this is the value from email's property `Unid`)")]
     public class NotesGetDocumentCommand : Command
     {
         public class Arguments : CommandArguments
@@ -27,7 +27,7 @@ namespace G1ANT.Addon.LotusNotes.Commands.Documents
             [Argument(Tooltip = "Name of view (folder) that is parent of desired document (email). Default is inbox (`($Inbox)`), list of all folders can be obtained using `notes.getfoldernames` command. Required to get email by index")]
             public TextStructure Folder { get; set; } = new TextStructure("($Inbox)");
 
-            [Argument(Tooltip = "Value of UNID (this is the value from email's property `UniversalID`)")]
+            [Argument(Tooltip = "Value of UNID (this is the value from email's property `Unid`)")]
             public TextStructure Unid { get; set; }
 
             [Argument(Tooltip = "Name of a variable where document (email) will be stored")]

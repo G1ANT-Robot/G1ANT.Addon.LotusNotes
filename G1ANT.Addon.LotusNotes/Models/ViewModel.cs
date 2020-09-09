@@ -39,7 +39,7 @@ namespace G1ANT.Addon.LotusNotes.Models
         //int RowLines { get; }
         //SPACING SPACING { get; set; }
         //int TopLevelEntryCount { get; }
-        public string UniversalID => view.UniversalID;
+        public string Unid => view.UniversalID;
         //bool IsProhibitDesignRefresh { get; set; }
         //string SelectionFormula { get; set; }
         public int EntryCount => view.EntryCount;

@@ -56,7 +56,7 @@ namespace G1ANT.Addon.LotusNotes.Models
         public string Signer { get; }
         public bool SignOnSend { get; set; }
         public int Size { get; }
-        public string UniversalID { get; set; }
+        public string Unid { get; set; }
         //public string Verifier { get; }
         //public dynamic LockHolders { get; }
         public bool IsEncrypted { get; }
@@ -98,7 +98,7 @@ namespace G1ANT.Addon.LotusNotes.Models
             Signer = document.Signer;
             SignOnSend = document.SignOnSend;
             Size = document.Size;
-            UniversalID = document.UniversalID;
+            Unid = document.UniversalID;
             IsEncrypted = document.IsEncrypted;
 
             Items = new Lazy<DocumentItemModel[]>(() => GetItems(document));
