@@ -10,6 +10,7 @@
 
 using G1ANT.Addon.LotusNotes.Services;
 using G1ANT.Language;
+using System.Linq;
 
 namespace G1ANT.Addon.LotusNotes.Commands
 {
@@ -29,7 +30,7 @@ namespace G1ANT.Addon.LotusNotes.Commands
         public void Execute(Arguments arguments)
         {
             var folderNames = LotusNotesManager.CurrentWrapper.GetFolderNames();
-            Scripter.Variables.SetVariableValue(arguments.Result.Value, new ListStructure(folderNames));
+            Scripter.Variables.SetVariableValue(arguments.Result.Value, new ListStructure(folderNames.Select(fn => new TextStructure(fn))));
         }
     }
 }
