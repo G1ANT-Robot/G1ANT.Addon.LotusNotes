@@ -109,10 +109,12 @@ namespace G1ANT.Addon.LotusNotes.Models
             Cc = ((IEnumerable)document.GetItemValue(ItemFieldNames.CopyTo)).Cast<string>().ToArray();
         }
 
-        private static DocumentItemModel[] GetItems(NotesDocument document)
+
+        private DocumentItemModel[] GetItems(NotesDocument document)
         {
-            return ((object[])document.Items).Cast<NotesItem>().Select(ni => new DocumentItemModel(ni)).ToArray();
+            return GetNoteItems().Select(ni => new DocumentItemModel(ni)).ToArray();
         }
+
 
         private void LoadEmailContent(LotusNotesWrapper wrapper)
         {
@@ -134,11 +136,8 @@ namespace G1ANT.Addon.LotusNotes.Models
 
             if (string.IsNullOrEmpty(ContentText))
             {
-                var textItem = new DocumentItemModel(((object[])document.Items)
-                    .Cast<NotesItem>()
-                    .FirstOrDefault(i => i.Name == ItemFieldNames.Body)
-                );
-                ContentText = textItem.Value;
+                var noteItem = GetNoteItems().FirstOrDefault(i => i.Name == ItemFieldNames.Body);
+                ContentText = noteItem == null ? null : new DocumentItemModel(noteItem).Value;
             }
         }
 
@@ -184,13 +183,13 @@ namespace G1ANT.Addon.LotusNotes.Models
 
         internal NotesDocument GetNotesDocument() => document;
 
+        private IEnumerable<NotesItem> GetNoteItems() => ((IEnumerable)document.Items).OfType<NotesItem>();
 
         public IReadOnlyCollection<AttachmentModel> GetAttachments()
         {
             if (document.HasEmbedded && document.HasItem("$File"))
             {
-                return ((IEnumerable)document.Items)
-                    .OfType<NotesItem>()
+                return GetNoteItems()
                     .Where(AttachmentModel.IsAttachmentItem)
                     .Select(item => new AttachmentModel(document, item))
                     .ToList();
