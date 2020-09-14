@@ -55,7 +55,9 @@ namespace G1ANT.Addon.LotusNotes.Services
             session = new NotesSession();
             session.Initialize(password);
 
-            database = new DatabaseModel(this, session.GetDatabase(server, databaseFile, false));
+            var notesDb = session.GetDatabase(server, databaseFile, false) ?? throw new Exception("Incorrect password, server or database path");
+
+            database = new DatabaseModel(this, notesDb);
             //// note to myself: that won't work: serverDatabase = session.CurrentDatabase; - unimplemented exception
 
             if (!database.IsOpen)
