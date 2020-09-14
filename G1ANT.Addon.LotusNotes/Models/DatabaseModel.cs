@@ -17,12 +17,12 @@ namespace G1ANT.Addon.LotusNotes.Models
 
         public DatabaseModel(LotusNotesWrapper wrapper, NotesDatabase database)
         {
-            this.wrapper = wrapper;
-            this.database = database;
+            this.wrapper = wrapper ?? throw new ArgumentNullException(nameof(wrapper));
+            this.database = database ?? throw new ArgumentNullException(nameof(database));
         }
 
+
         private ViewModel CreateModelOrNull(NotesView view) => view != null ? new ViewModel(wrapper, view) : null;
-        private DocumentModel CreateModelOrNull(NotesDocument document) => document != null ? new DocumentModel(wrapper, document) : null;
 
 
         public DocumentModel GetDocumentByUrl(string url) => new DocumentModel(wrapper, database.GetDocumentByURL(url));
@@ -41,8 +41,11 @@ namespace G1ANT.Addon.LotusNotes.Models
         public void Open() => database.Open();
 
 
-
-        public ViewModel GetView(string viewName) => CreateModelOrNull(database.GetView(viewName));
+        public ViewModel GetView(string viewName)
+        {
+            return CreateModelOrNull(database.GetView(viewName))
+                ?? throw new ApplicationException($"View (folder) {viewName} not found");
+        }
 
         /// <summary>
         /// Returns names of views marked as folders (IsFolder is set)
@@ -50,6 +53,8 @@ namespace G1ANT.Addon.LotusNotes.Models
         /// <returns></returns>
         public IReadOnlyCollection<string> GetFolderNames()
         {
+            var cats = database.Categories;
+
             var folders = ((IEnumerable)database.Views)
                 .OfType<NotesView>()
                 .Where(v => v.IsFolder)

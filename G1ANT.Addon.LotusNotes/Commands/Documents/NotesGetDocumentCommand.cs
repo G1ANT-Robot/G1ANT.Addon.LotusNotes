@@ -60,13 +60,7 @@ namespace G1ANT.Addon.LotusNotes.Commands.Documents
             );
         }
 
-        private static ViewModel GetViewByName(string folder)
-        {
-            var view = LotusNotesManager.CurrentWrapper.GetView(folder);
-            if (view == null)
-                throw new ApplicationException($"$View (folder) {folder} not found");
-            return view;
-        }
+        private static ViewModel GetViewByName(string folder) => LotusNotesManager.CurrentWrapper.GetView(folder);
 
         private static void ValidateArguments(int? index, string folder)
         {

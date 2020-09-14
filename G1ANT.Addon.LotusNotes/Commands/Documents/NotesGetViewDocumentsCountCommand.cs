@@ -36,8 +36,6 @@ namespace G1ANT.Addon.LotusNotes.Commands.Documents
                 throw new ArgumentNullException(nameof(arguments.Folder));
 
             var view = LotusNotesManager.CurrentWrapper.GetView(arguments.Folder.Value);
-            if (view == null)
-                throw new ApplicationException($"View (folder) {arguments.Folder} not found");
 
             var count = view.EntryCount;
 
