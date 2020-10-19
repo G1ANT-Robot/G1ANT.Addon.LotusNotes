@@ -8,9 +8,9 @@
 *
 */
 using Domino;
-using System.Collections;
+using System.Linq;
 
-namespace G1ANT.Addon.LotusNotes.Services
+namespace G1ANT.Addon.LotusNotes.Models
 {
     public class DocumentItemModel
     {
@@ -24,7 +24,7 @@ namespace G1ANT.Addon.LotusNotes.Services
         public bool IsSummary { get; set; }
         public dynamic LastModified { get; }
         public string Name { get; }
-        public DocumentModel Parent { get; }
+        //public DocumentModel Parent { get; }
         public bool SaveToDisk { get; set; }
         public string Text { get; }
         public IT_TYPE Type { get; }
@@ -46,31 +46,21 @@ namespace G1ANT.Addon.LotusNotes.Services
             Name = item.Name;
             //Parent = new DocumentModel(item.Parent);
             SaveToDisk = item.SaveToDisk;
-            Text = item.Text;
+            try { Text = item.Text; } catch { }
             Type = item.type;
             ValueLength = item.ValueLength;
-            if (item.Values is IEnumerable && !(item.Values is string))
-                Values = item.Values;
-            else// if (Values != null)
-                Value = Values?.ToString();
 
-            //            Values = ((IEnumerable)(item.Values)).Cast<string>().ToList();
+            if (item.Values is object[] values)
+                Values = values;
+            else if (item.Values != null)
+                Values = new object[] { (object)item.Values };
 
-            //var items = ((object[])document.Items).Cast<NotesItem>();
-
-            //if (document.HasEmbedded && document.HasItem("$File"))
-            //{
-            //    foreach (var item in items)
-            //    {
-            //        if (item.type == IT_TYPE.ATTACHMENT)
-            //        {
-            //            var v = ((IEnumerable)(item.Values)).Cast<string>().ToList();
-            //            //item.Values
-            //            //document.GetAttachment()
-            //        }
-            //    }
-            //}            
+            if (Values.Count() == 1)
+                Value = Values.FirstOrDefault()?.ToString();
         }
+
+
+        public override string ToString() => $"{Type}: {Name}";
     }
 }
 

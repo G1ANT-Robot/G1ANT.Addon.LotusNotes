@@ -23,11 +23,15 @@ namespace G1ANT.Addon.LotusNotes.Services
         public static int GetNextId() => wrappers.Select(w => w.Id).DefaultIfEmpty(0).FirstOrDefault();
 
 
-        public static LotusNotesWrapper AddWrapper()
+        public static LotusNotesWrapper CreateWrapper()
         {
             int assignedId = GetNextId();
-            CurrentWrapper = new LotusNotesWrapper(assignedId);
-            wrappers.Add(CurrentWrapper);
+            return new LotusNotesWrapper(assignedId);
+        }
+
+        public static LotusNotesWrapper RegisterAndSetAsCurrentWrapper(LotusNotesWrapper wrapper)
+        {
+            wrappers.Add(CurrentWrapper = wrapper);
             return CurrentWrapper;
         }
 
@@ -43,7 +47,7 @@ namespace G1ANT.Addon.LotusNotes.Services
 
             if (wrapperToRemove != null)
             {
-                //wrapperToRemove.Close();
+                wrapperToRemove.Close();
                 wrappers.Remove(wrapperToRemove);
                 CurrentWrapper = wrappers.FirstOrDefault();
             }
